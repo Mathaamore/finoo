@@ -17,6 +17,7 @@ To run the code (all the microservices) locally:
 - 02 - `docker-compose -f local.docker-compose.yml up -d --build`
 - 03 - Wait a little during the loading
 - 04 - Open the [frontend](http://localhost:3000) in your browser
+- 05 - Authentificate using admin user: `admin@admin.com:admin`
 
 ## 📕 Going further
 
