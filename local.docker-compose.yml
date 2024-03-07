@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+  database:
+    image: postgres:latest
+    container_name: pg
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /pg-data
+    ports:
+      - 5432:5432
+    volumes:
+      - pg-data:/pg-data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: backend.local.dockerfile
+    container_name: backend
+    restart: always
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+    environment:
+      - TIMEOUT=300
+      - DATABASE_HOST=database
+      - PORT=8000
+      - FRONTEND_HOST=http://localhost:3000
+    volumes:
+      - ./backend/src/:/app/src/
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: frontend.local.dockerfile
+      args:
+        - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000/api
+    container_name: frontend
+    restart: always
+    ports:
+      - 3000:3000
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./frontend/:/app/
+
+volumes:
+  pg-data:
